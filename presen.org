@@ -1,4 +1,4 @@
-#+title: Running a GOFAI in Deep Latent Space: Bridging the Sybsymbolic-Symbolic Boundary
+#+title: 離散隠れ空間での記号推論
 #+include: "head.org"
 #+LINK: img file:img/%s
 #+LINK: png file:img/%s.png
@@ -27,150 +27,6 @@ Made by guicho2.71828 (Masataro Asai)
 #+end_alignright
 #+end_note
 #+end_outline-text-1
-
-* Introduction 
-
-#+begin_xlarge
-#+begin_center
-Hello, Machine Learning people!
-#+end_center
-#+end_xlarge
-
-#+begin_center
-Deep Learning, RL, data mining, etc...
-
-#+begin_xlarge
-+ Do you identify yourself as a connectionist? ✋
-#+end_xlarge
-#+end_center
-
-#+begin_resume
-First of all, hello machine learning people.
-Im not a machine learning person.
-Im usually studying a type of symbolic AI and I visited here expecting an interesting conversation with
-machine learning professionals.
-#+end_resume
-
-** Introduction 
-
-#+begin_xlarge
-#+begin_center
-Hello, Symbolic AI people!
-#+end_center
-#+end_xlarge
-
-#+begin_center
-SAT, CP, Logic, TCS, ...
-
-#+begin_xlarge
-+ Have you tried any DL libraries? ✋
-#+end_xlarge
-#+end_center
-
-#+begin_resume
-And also, hello other symbolic AI people.
-Although I am not doing exactly the same thing, we have common roots.
-
-Let me give you one question before presenting my paper...
-#+end_resume
-
-** Introduction 
-
-
-#+begin_larger
-#+begin_center
-*I am from /AI Planning/ community (symbolic, logic-based)*
-#+end_center
-#+end_larger
-
-#+begin_center
-[[sgif:icapslogo]]
-
-International Conference on Automated Planning and Scheduling
-
-(AAAI sister conference, 33% avg. accept ratio, since 1990, ECP+AIPS→ICAPS)
-#+end_center
-
-** We are working on */Automated Planners/*
-
-　
-
-#+begin_center
-#+begin_larger
-*High-level plan for agents*
-
-/plan = (action_1, action_2, ... action_n)/
-
-Initial state → 🚶  → 🚗  → 🔨 → Goal state
-#+end_larger
-#+end_center
-
-　
-
-#+begin_center
-#+begin_container-fluid
-#+begin_row-fluid
-#+begin_span4
-*1st-Order Logic*
-
-STRIPS/PDDL
-
-modelling language
-
-Close-world assumption
-#+end_span4
-#+begin_span4
-*Combinatorial Explosion*
-
-High-dimensional
-
-implicit state space
-
-PSPACE-Hard
-#+end_span4
-#+begin_span4
-*Expensive, Critical Applications*
-
-Satellite Operation
-
-Deep Space 1
-
-Mars Exploration Rover
-#+end_span4
-#+end_row-fluid
-#+end_container-fluid
-#+end_center
-
-　
-
-+ 
-  #+begin_center
-  #+begin_larger
-  *Soundness, Completeness, Optimality*
-
-  of the algorithms are important
-  #+end_larger
-  (compared to "planning" in other AI fields)
-  #+end_center
-
-
-# + Compute the *high-level plan* for an agent: /plan = (action_1, action_2, ... action_n)/
-#   + Search-based planning projects many steps further into the future than RL
-#   + ↔ reflex (0-step), limited deliberation (1,2-steps)
-# + High-dimensional, *implicit* state space search
-#   + Entire space does not fit in memory, only *transition rules* are given
-# + STRIPS-like *PDDL modelling language*, based on
-#   + 1st-order logic, close-world assumption
-# + *Soundness, completeness, optimality* matters
-#   + Expensive Applications: Satellite operations (Deep Space 1), Mars Exploration Rover (MER), underwater vehicles
-
-** Introduction 
-
-#+begin_xlarge
-#+begin_center
-Today, I talk about how to integrate DL and logic-based planning systems.
-#+end_center
-#+end_xlarge
 
 * Overview
 
@@ -216,7 +72,472 @@ break
 #+end_xlarge
 #+end_center
 
-* Sliding tile puzzle (a.k.a 8-puzzle)
+* 背景 -- AIプランニング
+
+ #+begin_container-fluid
+ #+begin_row-fluid
+ #+begin_span6
+ [[png:astro/1]]
+ #+end_span6
+ #+begin_span6
+ [[png:rescue/1]]
+ #+end_span6
+ #+end_row-fluid
+ #+end_container-fluid
+
+** 誰?
+
+ #+begin_container-fluid
+ #+begin_row-fluid
+ #+begin_span6
+ [[png:astro/1]]
+ #+end_span6
+ #+begin_span6
+ [[png:rescue/1]]
+ #+end_span6
+ #+end_row-fluid
+ #+end_container-fluid
+
+  #+begin_resume
+  and let me introduce these robots.
+  the guy in the left is astro boy.
+  #+end_resume
+
+*** 誰?
+
+ #+begin_container-fluid
+ #+begin_row-fluid
+ #+begin_span6
+ [[png:astro/2]]
+ #+end_span6
+ #+begin_span6
+ [[png:rescue/1]]
+ #+end_span6
+ #+end_row-fluid
+ #+end_container-fluid
+
+ #+begin_resume
+ as you know, he is a famous manga superhero invented by tezuka osamu in 50s,
+ #+end_resume
+
+*** 誰?
+
+  #+begin_container-fluid
+  #+begin_row-fluid
+  #+begin_span6
+  [[png:astro/final]]
+  #+end_span6
+  #+begin_span6
+  [[png:rescue/1]]
+  #+end_span6
+  #+end_row-fluid
+  #+end_container-fluid
+
+ #+begin_resume
+ and he can think, hear, speak, act. he also has emotions.
+ #+end_resume
+
+*** 誰?
+
+  #+begin_container-fluid
+  #+begin_row-fluid
+  #+begin_span6
+  [[png:astro/final]]
+  #+end_span6
+  #+begin_span6
+  [[png:rescue/2]]
+  #+end_span6
+  #+end_row-fluid
+  #+end_container-fluid
+
+ #+begin_resume
+  in contrast, the guy in the right is a real robot that is actually in use @ fukuoka prefecture for the rescue purpose..
+  his name is t-52 enryu, developped by a japanese company temzak.
+  he is huge and powerful -- about 4 meters in height and can carry things which is as heavy as 500kg.
+  well, so, in a sense, he is also a superhero in the real disastrous situation.
+ #+end_resume
+
+*** 誰?
+
+  #+begin_container-fluid
+  #+begin_row-fluid
+  #+begin_span6
+  [[png:astro/final]]
+  #+end_span6
+  #+begin_span6
+  [[png:rescue/3]]
+  #+end_span6
+  #+end_row-fluid
+  #+end_container-fluid
+
+ #+begin_resume
+ but does he have feelings or can he think? can he even move around by his own?
+ #+end_resume
+
+*** 誰?
+
+  #+begin_container-fluid
+  #+begin_row-fluid
+  #+begin_span6
+  [[png:astro/final]]
+  #+end_span6
+  #+begin_span6
+  [[png:rescue/final]]
+  #+end_span6
+  #+end_row-fluid
+  #+end_container-fluid
+
+ #+begin_resume
+ no. it requires full human intervention --- it is indeed operated by a
+ driver who gets in or by a remote control. it is more like a
+ super-sophisticated shovel car.
+ #+end_resume
+
+** 実際の大規模災害では非実用的 --- 操縦士が足りない!              :noexport:
+
+ #+begin_container-fluid
+ #+begin_row-fluid
+ #+begin_span2
+ [[png:rescue]]
+ [[png:rescue]]
+ [[png:rescue]]
+ [[png:silent]]
+ #+end_span2
+ #+begin_span10
+ [[jpg:static/tsunami]]
+ #+end_span10
+ #+end_row-fluid
+ #+end_container-fluid
+
+ #+begin_larger
+ #+begin_alignright
+ + そのままでは役に立たない!
+ #+end_alignright
+ #+end_larger
+
+ #+begin_resume
+ now the problem is : it's ok in small accidents but is impractical in the real, massive 
+ natural disaster which frequently occurs in japan.
+ the key resource is human ---
+ these special purpose vehicles require human intervention,
+ thus they are useless without trained operators.
+ #+end_resume
+
+*** 操縦士を増やせない -- human resource and training
+
+ #+begin_container-fluid
+ #+begin_row-fluid
+ #+begin_span4
+  [[png:rescue/1]]
+ #+end_span4
+ #+begin_span8
+
+   + ✘ /時間/ がかかる :: 訓練に ＞100時間, *必要な時だけ増やす* のは不可能
+   + ✘ /￥￥￥￥/ がかかる :: 訓練官、訓練場所、訓練用具
+   + ✘ 技術は /維持が重要/ :: 定期的な再訓練、長期的コスト、さらなるマニー
+   + ✘ 平時は /無駄/ な技術 :: 普段は意味がない -- 無駄なマニー!
+ #+end_span8
+ #+end_row-fluid
+ #+end_container-fluid
+
+ #+begin_resume
+ in a natural disaster, we need as many experienced operators as possible.
+ however, it is virtually impossible due to several reasons. 
+
+ first, training takes time.
+ it is impossible to quickly increase the number of operators as needed, at the time of disaster.
+
+ second, the money matters.
+ training a person costs a lot of money, including: the cost of maintaining
+ a training center, the cost of additional vehicles for training, the cost
+ of training the trainers, wages for trainers, etc.
+
+ third, skills need to be updated and maintained.
+ you know, how about preparing the large number of operators in advance?
+ no, the society cannot torelate the cost of keep training them.
+ operators may lose the skills and skills may become outdated.
+
+ finally, in a normal situation, those skills are useless.
+ it forces the society to waste a great amount of extra money.
+ #+end_resume
+
+** 自律行動のための自動プランナ (≠ モータ制御)
+
+ [[png:planning/1]]
+
+ #+begin_resume
+ 研究テーマのプランニングは、ロボットに、人間の助けを借りず、いかに自律して行動させるかを扱います。
+ これをモデル化したプランニング問題は、具体的な行動の列を求める 組合せ最適化問題です。
+
+ プランニング問題のタスクは、
+ センサーから初期状態とゴールを受け取って、被災者を助ける正しい手順を出力することです。
+
+ たとえば、この図では男性が瓦礫に埋まって助けを求めています。
+ プランニング機能のあるロボットは、コレに対して「男性を助けよ」という大まかな指示を受けます。
+ #+end_resume
+
+** 自律行動のための自動プランナ (≠ モータ制御)
+
+ [[png:planning/2]]
+
+ #+begin_resume
+ 指示の内容には、図のように初期状態とゴール、許可された行動のリストが入っています。
+ ロボットは、自動プランニングにより、人間の代わりに適切な行動を組み立てて、ゴールを自動で達成します。
+ #+end_resume
+
+** 自律行動のための自動プランナ (≠ モータ制御)
+
+ [[png:planning/final]]
+
+ #+begin_resume
+ プランニングは汎用な枠組みなので、災害救助以外にも様々な問題に適用することができます。
+ 現実の応用例では「宇宙探査機運行問題」や「企業ネットワーク脆弱性問題」も表現できます。
+
+ このように、プランニングは、難しい問題を汎用性を失わずに解くことを目指します。
+ #+end_resume
+
+** AIプランニングの */Killer App/*                                 :noexport:
+
+
+#+BEGIN_CONTAINER-FLUID
+#+BEGIN_ROW-FLUID
+#+BEGIN_SPAN7
+#+BEGIN_LARGER
++ 人が高価or不可能な作業 :: 原発, 宇宙空間, 火星, 深海
++ 正しさと最適性の理論保証が必要なミッションクリティカルシステム :: 
+     製造システム、運送 (時間=お金)
+
+     人工衛星 (燃料使いきれば運用終了)
+
+     間違った解は許されない
++ 思考過程を説明可能なシステム :: 
+     レスキュー・宇宙船 (人間の安全がかかっている)
+#+END_LARGER
+
+# [[sjpg:martian]]
+
+#+END_SPAN7
+#+BEGIN_SPAN5
+
+[[sjpg:gravity-m]]
+
+#+END_SPAN5
+#+END_ROW-FLUID
+#+END_CONTAINER-FLUID
+
+
+
+** AIと自動プランニング の位置づけ -- /理論/ と /実応用/ の中間    :noexport:
+
+ 緑は /理論/ 、オレンジは /実応用/ 、 AI はその橋渡し (どれともかぶらない部分もある)
+
+ #+BEGIN_RESUME
+ Automated Planning is a branch of Aritificial Intelligence. 
+
+ It shares a lot of technology with Operations Research and Theoretical
+ Computer Science, and is considered a bridge between pure theory and
+ pure applications.
+ #+END_RESUME
+
+ [[png:planning-related-field]]
+
+* 古典プランニング問題 (決定的,完全情報) -- Blocksworld            :noexport:
+
+#+HTML: <embed src="img/plan.svg" type="image/svg+xml"  />
+
+#+begin_larger
+非古典的なさまざまな拡張
+#+begin_alignright
+(並列アクション,POMDP,HTN... AIの教科書を参照)
+#+end_alignright
+#+end_larger
+
+** アクション = 条件付き状態遷移
+
+#+begin_center
+#+begin_xlarge
+アクション (move ?x ?y)
+#+end_xlarge
+#+end_center
+
+#+BEGIN_CENTER
+*?X*, *?Y* : 変数。 値 *BLOCK-A*, *BLOCK-B* などを適用して使う
+
+*条件* と *効果* で構成される
+#+END_CENTER
+
+
+#+begin_container-fluid
+#+begin_row-fluid
+#+begin_span7
+#+begin_quote
+*条件* : 実行に必要な条件を表す命題
+
+　(clear *?X*) : 積み木 *?X* の上が空
+
+　(clear *?Y*) : 積み木 *?Y* の上に空
+
+*効果* : 前後の状態の *差分* を表す命題
+
+　(on *?X* *?Y*) を *追加* : *?Y* の上は *?X*
+
+　(clear *?Y*) を *削除*
+#+end_quote
+#+end_span7
+#+begin_span5
+#+begin_src lisp
+(:action move
+ :parameters (?X ?Y)
+ :preconditions
+   (and (clear ?X)   ; (1)
+        (clear ?Y))  ; (2)
+
+ :effect
+   (and (on ?X ?Y)   ; (3)
+        (not         ; (4)
+         (clear ?Y))))
+#+end_src
+#+begin_alignright
+#+begin_larger
+モデリング言語 *PDDL* で記述
+#+end_larger
+#+end_alignright
+#+end_span5
+#+end_row-fluid
+#+end_container-fluid
+
+** *PDDL* : Planning Domain Description Language                   :noexport:
+
+International Planning Competition で使われている入力形式
+
+#+BEGIN_CONTAINER-FLUID
+#+BEGIN_ROW-FLUID
+#+BEGIN_SPAN2
+
+#+END_SPAN2
+#+BEGIN_SPAN8
+#+BEGIN_SRC lisp
+(:action move
+ :parameters (?X ?Y)
+ :preconditions
+   (and (clear ?X)   ; (1)
+        (clear ?Y))  ; (2)
+
+ :effect
+   (and (on ?X ?Y)   ; (3)
+        (not         ; (4)
+         (clear ?Y))))
+#+END_SRC
+#+END_SPAN8
+#+BEGIN_SPAN2
+
+#+END_SPAN2
+#+END_ROW-FLUID
+#+END_CONTAINER-FLUID
+
+** プランニング = グラフ探索
+
+*ノード* : 状態 = 命題の集合 ⇒ =(on A B)=, =(clear A)= など
+
+*辺*     : アクション ⇒ =(move A B)= 等
+
+[[png:graph]]
+
+# #+BEGIN_CONTAINER-FLUID
+# #+BEGIN_ROW-FLUID
+# #+BEGIN_SPAN6
+# # + ヒューリスティック探索 A*
+# # + State-of-the-Art *1
+# #+END_SPAN6
+# #+BEGIN_SPAN6
+# # #+attr_html: :width 50%
+# #+END_SPAN6
+# #+END_ROW-FLUID
+# #+END_CONTAINER-FLUID
+
+#+BEGIN_NOTE
+*1 [Helmert, 2006] [Richter, 2010]
+#+END_NOTE
+  
+** Q. いま */はやり/* のDeep Learningとの違いは?                   :noexport:
+
+ A. レイヤが違う
+
+ #+BEGIN_CONTAINER-FLUID
+ #+BEGIN_ROW-FLUID
+ #+BEGIN_SPAN6
+ *機械学習・Neural Networks* 
+ 
+ for *認識・反射*
+ + 入力 は *Subsymbolic* (連続値)
+   
+   画像、音声、非構造化テキスト: 
+ + *感覚的知能*:
+   
+   　 */反応/, /直後/ の行動の決定*
+   #+BEGIN_SMALLER
+   *パブロフの犬* : 餌を認知→よだれ
+
+   *自動運転* : 赤信号,人 → 止まる.
+
+   *翻訳* : 文章 → 文章
+
+   *囲碁局面の評価関数* : 局面 → 勝率
+   #+END_SMALLER
+   #+BEGIN_LARGER
+   ☺ 効率よく 1-to-1 mapping
+   
+   ☹ 単純作業
+   #+END_LARGER
+ #+END_SPAN6
+ #+BEGIN_SPAN6
+ *推論・探索*
+
+ for *プランニング・ゲーム・定理証明*
+ + 入出力は *Symbolic*
+   
+   論理 オブジェクト ルール
+ + *論理・推論による知能:*
+
+   　 */未来に渡る/ 戦略の決定*
+   
+   　 (戦略 = 行動の *列や木*)
+   #+BEGIN_SMALLER
+   *レスキューロボ* : ゴール = 被災者生存
+
+   *証明器* : ゴール = QED
+
+   *コンパイラ* : 命令列の生成
+   
+   *囲碁,将棋* : ゴール = 勝利
+   #+END_SMALLER
+   #+BEGIN_LARGER
+   ☺ 順序制約+複雑な作業
+   #+END_LARGER
+ #+END_SPAN6
+ #+END_ROW-FLUID
+ #+END_CONTAINER-FLUID
+
++ AlphaGo = Subsymbolic (DLNNによる評価関数) + Symbolic (MCTSによる探索)
+
+** 既存の有名システム                                              :noexport:
+
+AlphaGo = Subsymbolic (NNによる評価関数) + Symbolic (MCTSによる探索)
++ ただし *ドメイン依存* -- 囲碁に特化, "マス目"や"石"といった概念をハードコード
++ *膨大な棋譜が必要* --- 運用データがない環境(e.g.火星)には適用不能
++ */人って模範解答がないと行動できませんか?/* *真の自律機械は前例無しでも行動可能*
+
+DQN = Subsymbolic (DLNN) + 強化学習 (DLNN)
+
+様々な Atari Game につかえる汎用フレームワーク (Invader, Packman…) だが
++ RLのActing: 学習したpolicyに従ってgreedyに行動
++ Atariゲームは *脊髄反射で生き残ることが可能* → *複雑な論理思考はいらない!*
+  
+# 実際 *Sokoban など論理思考ゲームでは性能が悪い* ↔ 倉庫番ソルバ
+
+
+
+* スライディングタイルパズル (a.k.a 8-puzzle)
 
 #+begin_container-fluid
 #+begin_center
@@ -237,12 +558,12 @@ Goal State
 #+end_container-fluid
 
 #+begin_alignright
-+ *You need to find a plan to reach the goal.*
++ *ゴールに到達するアクション列=プランを探すのが目的*
 #+end_alignright
 
-** States
+** 状態
 
-*States* as *1st-order logic formula*, described in *PDDL language*.
+*状態* は *一階述語論理の命題列* , モデリング言語 *PDDL* で表される.
 
 #+begin_container-fluid
 #+begin_row-fluid
@@ -285,19 +606,19 @@ Goal State
 #+end_center
 #+end_container-fluid
 
-** Transitions / Actions
+** 状態遷移 / アクション
 
 #+begin_container-fluid
 #+begin_row-fluid
 #+begin_span9
-Representing  *sliding up* → *Transition Rules (Actions)*
+*上にスライド* を表すルール → *アクション*
 
 #+begin_quote
-+ *When* the new location is empty:
++ *上が空きなら* 上にスライド可能 (*前提条件*)
 
-+ The current location *becomes empty*.
++ *効果*: 今の場所は *空きになり*
 
-+ New location is *occupied* and is *not empty*.
++ 上は *¬空き* になる.
 #+end_quote
 #+end_span9
 #+begin_span3
@@ -307,13 +628,13 @@ initial state
 #+end_row-fluid
 #+begin_row-fluid
 #+begin_span12
-+ *First-order Logic Formula*
++ *一階述語論理*
   
   *When* /Empty(x, y_{old}) ∧ is(panel, x, y_{new}) ∧ up(y_{new}, y_{old})/ ;
   
   *then* /¬ Empty(x,y_{old}) ∧ Empty(x,y_{new}) ∧ ¬ is(panel, x, y_{new}) .../
 
-+ *PDDL Model* : Actual Input to the Planner
++ *PDDL Model* : プランナへの実際の入力
   #+begin_src lisp
   (:action slide-up ...
    :precondition (and (empty ?x ?y-old) ...)
@@ -342,10 +663,34 @@ initial state
 #   #+end_alignright
 #   #+end_larger
 
-** Symbolic planners cannot solve an */Image-based/* 8-puzzle
+** プランニング = グラフ探索
+
+*ノード* : 状態 = 命題の集合 ⇒ =(on A B)=, =(clear A)= など
+
+*辺*     : アクション ⇒ =(move A B)= 等
+
+[[png:graph]]
+
+# #+BEGIN_CONTAINER-FLUID
+# #+BEGIN_ROW-FLUID
+# #+BEGIN_SPAN6
+# # + ヒューリスティック探索 A*
+# # + State-of-the-Art *1
+# #+END_SPAN6
+# #+BEGIN_SPAN6
+# # #+attr_html: :width 50%
+# #+END_SPAN6
+# #+END_ROW-FLUID
+# #+END_CONTAINER-FLUID
+
+#+BEGIN_NOTE
+*1 [Helmert, 2006] [Richter, 2010]
+#+END_NOTE
+  
+** 記号的プランナは */画像ベースの/* 8-puzzle を解けない
 
 #+begin_center
-+ *PDDL for 3x3 Sliding Tile Puzzle* can be solved *optimally* *<< 1sec*
++ *現在の計算機+現在のソルバは、8パズルを、PDDLさえあれば0.1秒以下で最適に解ける。*
 #+end_center
 
 #+begin_container-fluid
@@ -356,66 +701,59 @@ initial state
 #+begin_span4
 + 
    #+begin_center
-   *BUT*
+   *しかし*
 
-   *WE*
-
-   *DO*
-
-   *NOT*
-
-   *HAVE*
-
-   *A*
-
-   #+begin_larger
    */PDDL/*
 
-   */MODEL/!*
-   #+end_larger
+   */モデルが/*
+
+   */無い!!!/*
 #+end_center
 #+end_span4
 #+end_row-fluid
 #+end_container-fluid
 
-** Knowledge-Acquisition Bottleneck (Cullen, 1988):
+** 知識獲得のボトルネック (Cullen, 1988):
 
 #+begin_quote
-The *cost of human* involved for converting *real-world problems* into inputs for
-domain-independent *symbolic* systems
+*現実の問題* を *記号的システム* に解かせるため、
+*問題を人間が記号モデル化* するのにかかるコスト。
 #+end_quote
 
 #+begin_container-fluid
 #+begin_row-fluid
 #+begin_span12
-+ *For /image-based/ tasks*, we must *automate 2 processes*:
++ *いまある画像版8パズルでは、２つの作業が必要*:
 #+end_span12
 #+end_row-fluid
 #+begin_row-fluid
 #+begin_span6
-+ *1. Symbols Grounding:*
++ *1. シンボルグラウンディング:*
 
   #+begin_center
   #+begin_larger
-  */Symbols/ = identifiable entities*
+  */シンボル/ = 独立した要素*
   #+end_larger
   #+end_center
   
+  シンボルには *種類* がある。
   #+begin_smaller
-  | Types        | Examples                     |
+  | 種類         | 例                           |
   |--------------+------------------------------|
-  | Objects      | *panel7*, *x_0*, *y_0* ...   |
-  | Predicates   | (*empty* ?x ?y)              |
-  | Propositions | *p_28* = (empty x_0 y_0)     |
-  | Actions      | (*slide-up* panel_7 x_0 y_1) |
+  | オブジェクト | *panel7*, *x_0*, *y_0* ...   |
+  | 述語         | (*empty* ?x ?y)              |
+  | 命題変数     | *p_28* = (empty x_0 y_0)     |
+  | アクション   | (*slide-up* panel_7 x_0 y_1) |
   #+end_smaller
 #+end_span6
 #+begin_span6
-+ *2. Action Model Acquisition (AMA):*
++ *2. アクションモデルの獲得(AMA):*
   
+  (Action Model Acquisition)
+
   #+begin_center
   #+begin_larger
-  */Describe/ actions.*
+  *環境を学習し、シンボルで説明する.*
   #+end_larger
   #+end_center
   
@@ -428,11 +766,9 @@ domain-independent *symbolic* systems
   #+end_center
 
 #+begin_center
-+ A *Long-Standing Problem*...
-
 + 
   #+begin_larger
-  *Now we propose a system which automate these processes...*
+  *この２つを同時に解決するシステムを提案します。*
   #+end_larger
 #+end_center
 
@@ -444,7 +780,11 @@ domain-independent *symbolic* systems
 # The knowledge acquisition bottleneck: time for reassessment? : Cullen, J and Bryman, A Expert Syst. Vol 5 No 3 (August 1988) pp 216-225
 # #+end_note
 
-* Latent-Space Planner (*/Latplan/*) (*/Accepted/* in AAAI-2018)
+* Latent-Space Planner (*/Latplan/*)
+
+#+begin_larger
+ (*/Accepted/* in AAAI-2018)
+#+end_larger
 
 [[png:latplanlogo]]
 
@@ -535,33 +875,29 @@ Tic-Tac-Toe with *Ellipse Detectors* (Bardu 10)
 → Also, Domain-dependent ("3x3 grid" "Ellipse" are hard-coded)
 #+end_quote
 
-* Problem Setting
+* 問題設定
 
 #+begin_center
 #+begin_xlarge
-Problem Setting
-
-of
-
-Latent-Space Planner
+Latplan の問題設定
 #+end_xlarge
 #+end_center
 
-** Task: Solving an Imaged-Based 8-puzzle w/o Prior Explicit Knowledge
+** 事前知識なし 画像入力のみで8パズルを解くプログラム
 
-*No Prior Knowledge* : labels/symbols such as "9 tiles", "moving"
-
-[[sjpg:puzzle]]
-
-** Task: Solving an Imaged-Based 8-puzzle */w/o Prior Explicit Knowledge/*
-
-*/No Prior Knowledge/* : labels/symbols such as "9 tiles", "moving"
+*事前知識なし* : 「9マスある」「動くパネル」など人の与えた *ラベル・シンボルなし*
 
 [[sjpg:puzzle]]
 
-** Task: Solving */ANY/* Imaged-Based tasks w/o Prior Explicit Knowledge
+** */事前知識なし/* 画像入力のみで8パズルを解くプログラム
 
-*/No Prior Knowledge/* : */Domain-independent Image-based planner/*
+*事前知識なし* : 「9マスある」「動くパネル」など人の与えた *ラベル・シンボルなし*
+
+[[sjpg:puzzle]]
+
+** 事前知識なし 画像入力のみで */あらゆるプランニング問題/* を解けるプログラム
+
+*/事前知識なし/* : */画像ベースのドメイン非依存プランナ/*
 
 #+begin_container-fluid
 #+begin_row-fluid
@@ -578,47 +914,45 @@ Lights-Out
 #+end_row-fluid
 #+end_container-fluid
 
-** Inputs
+** システムの入力
 
 #+begin_xlarge
-The system is given *2 types of input*:
+２つの入力:
 
-+ Training Input
-+ Planning Input
++ Training 入力
++ Planning 入力
 #+end_xlarge
 
-** Input1: Training Input -- Image Pairs
+** 入力1: Training 入力 -- 画像ペアの集合
 
 [[png:overview/1]]
 
-** Input1: Training Input -- Image Pairs
+** 入力1: Training 入力 -- 画像ペアの集合
 
 #+begin_right
 [[png:overview/2]]
 #+end_right
 
-They are *random sampled* transitions
+環境から *ランダムに* 生成した遷移
 
-+ No *reward* / No *expert traces*
-+ No *access to the simulator*
++ *報酬なし* / *エキスパート知識なし*
++ *シミュレータなし* (Deep RLはシミュレータを常に使う)
 + 
   #+begin_larger
-  No */action labels, symbols/*
+  */アクションラベルなし/*
 
-  　　(e.g. up, down)
-  
-  → doesn't know what's happening in each transition
+  → ある画像の遷移で「何が起きているか」の説明がまったく与えられない
   #+end_larger
 
-** Input2: Planning Input -- Initial Image & Goal Image
+** 入力2: Planning 入力 -- 初期画像 & ゴール画像
 
 [[png:overview/input2]]
 
-** Task: Solving */ANY/* Imaged-Based tasks w/o Prior Explicit Knowledge
+** 事前知識なし 画像入力のみで */あらゆるプランニング問題/* を解けるプログラム
 
 #+HTML: <embed src="img/overview/3.svg" type="image/svg+xml"  />
 
-** Task: Solving */ANY/* Imaged-Based tasks w/o Prior Explicit Knowledge
+** 事前知識なし 画像入力のみで */あらゆるプランニング問題/* を解けるプログラム
 
 #+HTML: <embed src="img/overview/3-hanoi.svg" type="image/svg+xml"  />
 
@@ -648,7 +982,7 @@ break
 
  [[png:overview/planning1]]
 
-** Step 1: Propositional Symbol Grounding
+** Step 1: 命題変数シンボルグラウンディング
 
  [[png:overview/planning2]]
 
@@ -662,19 +996,19 @@ Trained SAE provides two functions:
 
 + $\tilde{r} = Decode(b)$ *maps a bit vector $b\;$ to a raw datum $\tilde{r}$*
 
-** Step 2: Action Model Acquisition (AMA)
+** Step 2: アクションモデルの獲得 (AMA)
 
  [[png:overview/planning3]]
 
-** Step 3: Solve the Symbolic Planning Problem
+** Step 3: 記号的プランニング問題を記号的ソルバで解く
 
   [[png:overview/planning4]]
 
-** Step 4: Executing the Symbolic Plan
+** Step 4: 記号的プランを実行し記号的状態列を得る
 
   [[png:overview/planning5]]
 
-** Step 5: Obtaining the Visualization
+** Step 5: 記号的状態列を現実の写真に変換する
 
   [[png:overview/planning6]]
 
@@ -683,17 +1017,17 @@ Trained SAE provides two functions:
 #+end_larger
 #+end_center
 
-** Summary
+** まとめ
 
 #+begin_xlarge
-Latplan: Latent-space Planner.
+Latplan: 隠れ空間プランナ (Latent-space Planner).
 #+end_xlarge
 
 #+begin_larger
-+ *bridges /real-world/ and /propositional/ representations.*
-+ *performs a /propositional, logical, sound reasoning/.*
-+ *returns a /real-world/ output* (e.g. images).
-+ *runs in a /completely automated, unsupervised/ manner.*
++ */現実の表現/ と /命題論理表現/ を教師無しで相互変換.*
++ */命題論理を用いて正しい推論を行う/.*
++ */現実の表現で答えを出力する/* (画像など).
++ */教師無しで完全自動で動作する/.*
 #+end_larger
 
 * Overview
@@ -720,22 +1054,18 @@ break
 
 * State AutoEncoder (SAE)
 
-SAE is a *neural network* which provides two functions:
+SAE はふたつの関数を含む *ニューラルネット*:
 
-+ $b = Encode(r)$ : *maps a raw datum $r\;$ to a bit vector $b\;$*
++ $b = Encode(r)$ : *生データ $r\;$ をビットベクタ $b\;$ に変換*
 
-+ $\tilde{r} = Decode(b)$ : *maps a bit vector $b\;$ to a raw datum $\tilde{r}$*
++ $\tilde{r} = Decode(b)$ : *ビットベクタ $b\;$ を生データ $\tilde{r}$ に逆変換*
 
 #+begin_larger
-+ *A bidirectional mapping between*
++ *サブシンボリック表現とシンボリック表現の双方向マッピング*
 
-  + *subsymbolic representation* (image array) and
-
-  + *symbolic representation*
- 
-    #+begin_alignright
-     (bit vectors = propositional variables)
-    #+end_alignright
+  #+begin_alignright
+   (ビットベクタ = 命題変数と同値)
+  #+end_alignright
 #+end_larger
 
 ** Neural Network 101                                              :noexport:
@@ -762,7 +1092,7 @@ Plus misc techniques e.g. *Batchnorm*, *Dropout*
 *Good libraries --- Tensorflow, Keras* --- you can learn in 1-2 months
 #+end_larger
 
-** NN for Standard Classification Tasks (Supervised)
+** 「ふつうの」分類タスク用のNN (教師あり)
 
 # Target Function $y=f(x)\;$ trained by SGD minimizing $|y-f(x)|$
 # 
@@ -770,28 +1100,28 @@ Plus misc techniques e.g. *Batchnorm*, *Dropout*
 # SGD: Stochastic Gradient Descent
 # #+end_alignright
   
-| Task                 | Input x  | Output y                           |
-|----------------------+----------+------------------------------------|
-| Image classification | Image    | Label (1=car, 2=cat, 3=monkey ...) |
+| Task           | Input x | Output y                     |
+|----------------+---------+------------------------------|
+| 画像クラス分け | 画像    | ラベル (1=🚗, 2=😺, 3=🐵 ...) |
 # | Translation          | Sentence | Sentence                           |
 # | Go eval. function    | State    | Number                             |
 
 #+begin_larger
- + *This is not suitable for our task;*
-   + */There are no labels/* provided by humans, i.e.
-   + */There are no real answers/* for symbol grounding
+ + *これではLatplanには使えない*
+   + *Latplan入力に人の与えた /ラベルはない/* 、つまり
+   + シンボルを */どうグラウンディングするか/* は機械の気分次第
      
      　
 
      #+begin_alignright
-     (*People do it differently, too.*
+     (*実際、人間も、同じものを別の形で記号接地しうる。*
      
-     cf. How many colors in a 🌈?)
+     cf. 虹🌈 は何色で出来ている?)
      #+end_alignright
 
 #+end_larger
 
-** Unsupervised Learning by AutoEncoder
+** オートエンコーダ(AE)を使った教師なし学習
 
 # Auto = "self" --- Autoencoding = "encoding itself"
 
@@ -800,13 +1130,12 @@ Plus misc techniques e.g. *Batchnorm*, *Dropout*
 #+begin_span7
 　
 
-Target Function: Identity $x=f(x)$
-+ Encode $x\;$ to a *latent vector* $z$
-+ Decode $z\;$ back to the input $x$
-+ $z\;$ has a smaller dimension
-+ i.e. Compression: $X \leftrightarrow Z$
-+ Training: Minimize $|x - f(x)|\;$
-  (*reconstruction loss*)
+目標関数: Identity $x=f(x)$
++ $x\;$ を *隠れ表現* $z$ にエンコード
++ $z\;$ を 入力 $x$ にデコード
++ $z\;$ は小さな次元数: 次元圧縮
++ 訓練: $|x - f(x)|\;$ を最小化
+  (*自己符号化ロス*)
 #+end_span7
 #+begin_span5
 [[png:deeplearning/autoenc]]
@@ -816,9 +1145,9 @@ Target Function: Identity $x=f(x)$
 
 #+begin_alignright
 #+begin_larger
-+ → However, */✘ Latent vector Z is real-valued/*
++ → しかし, */✘ 隠れベクタ Z は実数値/*
 
-  */INCOMPATIBLE to propositional reasoning/*
+  */命題論理による推論には使えない/*
 #+end_larger
 #+end_alignright
 
@@ -842,11 +1171,11 @@ Reparametrization for $N(\mu,\sigma)$: $\mu + \sigma N(0,1)$
 
 ** Gumbel-Softmax VAE (Jang, Gu, ICLR2017)
 
-*Additional optimization penalty* which enforces $Z \sim \textbf{Categorical}$:
+*AEにコスト関数を追加* し、 $Z \sim \textbf{Categorical}$ に収束するよう強制:
 
-　　　→ $z\;$ converges to a 1-hot vector e.g.  $\langle 0,0,1,0 \rangle$ .
+　　　→ $z\;$ は 1-hot ベクタに収束 e.g.  $\langle 0,0,1,0 \rangle$ .
 
-Example: Represent an MNIST image with 30 variables of 8 categories.
+例: MNIST 画像を 8カテゴリ変数 30個で表現
 
 #+begin_center
  #+begin_html
@@ -858,18 +1187,18 @@ Example: Represent an MNIST image with 30 variables of 8 categories.
 #+end_center
 
 #+begin_center
-+ Key idea: *These categorical variables are /directly/ usable*
++ 鍵となるアイディア: *これらのカテゴリ変数は /直接/*
 
-  *as the source of propositional models*
+  *命題論理的モデルとして扱える*
 
-  In particular, *2 categories → propositional variables (true/false)*
+  特に, *カテゴリ数 = 2 → 活性化値が命題変数の値に相当 (0/1 = 真/偽)*
 #+end_center
 
-** State Autoencoder (*/before training/*)
+** State Autoencoder (*/訓練前/*)
 
  [[png:sae/state-ae-before]]
 
-** State Autoencoder (_/after training/_)
+** State Autoencoder (_/訓練後/_)
 
  [[png:sae/state-ae]]
 
@@ -917,58 +1246,30 @@ Gumbel-Max: Method for drawing one-hot vector sample ($z$) from category probabi
 Maddison et. al., 2014
 #+end_note
 
-* Verifying the feasibility of Latplan system and SAE
+* 実験: State Autoencoder (SAE) の作った命題変数で「論理的に正しく推論できるか?」
 
-#+begin_quote
-Q: Do the *propositions* found by the SAE (neural network) *make any logical sense?*
+全ての状態遷移を生成して、それぞれをPDDLアクションに翻訳、汎用ソルバを用いて解く
 
-Q: Is it possible to *reason over such generated propositions?*
-#+end_quote
-
-We need to build a *MVP system*
-
-　
-
-#+begin_center
-*SAE is not sufficient for propositional reasoning:* We need *AMA*
-#+end_center
-
-　
-
-#+begin_alignright
-#+begin_larger
-So we built *AMA ver.1*, a */trivial, oracular/* AMA system
-#+end_larger
-#+end_alignright
-
-** AMA_1 : a */trivial, oracular/* AMA method
-
-It does not actually *learn/generalize* anything
-
-　
-
- [[png:overview/ama1]]
-
-** Embed Directly: One Action Per Transition
+(つまり、アクションモデル獲得は省略)
 
 #+begin_src lisp
  0011 → 0101  
 
-　　　↓       ;; one action per transition
+　　　↓       ;; 状態遷移ごとにアクションを１つ作製
 (:action       action-0011-0101
-               ;; before-state is embedded directly
+               ;; 前提条件は遷移前の状態をそのまま使う
  :precondition (and (b0-false) (b1-false) (b2-true) (b3-true))
-               ;; effect = state diff
+               ;; 効果 = 状態の差分
  :effect       (and (not (b1-false)) (b1-true)
                     (not (b2-true))  (b2-false)))
 #+end_src
 
-Conversion from a bit to a proposition:
+それぞれのビットを命題に変換
 
 #+begin_center
- $i$-th bit is 1 → Proposition ($b_i$ -true)
+ $i$-th bit が 1 → 命題 ($b_i$ -true)
 
- $i$-th bit is 0 → Proposition ($b_i$ -false)
+ $i$-th bit が 0 → 命題 ($b_i$ -false)
 #+end_center
 
 *** Example PDDL
@@ -992,78 +1293,75 @@ Conversion from a bit to a proposition:
   ...
 #+end_src
 
-** Step 3: Solve the Symbolic Planning Problem
+** Step 3: このPDDLを使って問題を解き
 
   [[png:overview/planning4]]
 
-** Step 4: Executing the Symbolic Plan
+** Step 4: プランを実行し
 
   [[png:overview/planning5]]
 
-** Step 5: Obtaining the Visualization
+** Step 5: 結果を可視化
 
   [[png:overview/planning6]]
 
-* AMA_1 Experiments
-
-SAE: *trained with 20k images* (note: > 360k entire states in 8-puzzle)
-
-+ */SAE is generalizing/*
-
-AMA_1: requires the entire transistions (note: > 1M transitions in 8-puzzle)
-
-+ _/AMA_1 is NOT generalizing, being an oracle/_
-
-Planner: a State-of-the-Art, Fast Downward (Helmert, 08)
-
-+ $A^*$ *(optimal search)* : *It must find an optimal solution*
-
-+ Runtime: ~3sec (instances are too small for symbolic systems)
+# * AMA_1 Experiments
+# 
+# SAE: *trained with 20k images* (note: > 360k entire states in 8-puzzle)
+# 
+# + */SAE is generalizing/*
+# 
+# AMA_1: requires the entire transistions (note: > 1M transitions in 8-puzzle)
+# 
+# + _/AMA_1 is NOT generalizing, being an oracle/_
+# 
+# Planner: a State-of-the-Art, Fast Downward (Helmert, 08)
+# 
+# + $A^*$ *(optimal search)* : *It must find an optimal solution*
+# 
+# + Runtime: ~3sec (instances are too small for symbolic systems)
 
 ** 8-puzzle Results with MNIST tiles (MNIST 8-puzzle)
-
- 8-puzzle using digits from MNIST database
 
  [[png:results/mnist-plan]]
 
  #+begin_larger
- An instance whose optimal solution length is known
  #+begin_xlarge
  #+begin_alignright
-  → *31 step optimal plan*
+  → *31手の最適解を返却*
  #+end_alignright
  #+end_xlarge
  #+end_larger
 
-** Results with photographic, unseparated tiles (Mandrill 8-puzzle)
+** 写真ベースの8パズル: タイルが明確に分離されていない (Mandrill 8パズル)
 
-MNIST 8-puzzle has cleanly separated objects -> This domain does not.
+MNIST 8パズルは タイル同士がくっきり分離していた -> 境界がよく分からなくても大丈夫か?
 
 [[png:results/mandrill-intro]]
 
-** Results with photographic, unseparated tiles (Mandrill 8-puzzle)
+** 写真ベースの8パズル: タイルが明確に分離されていない (Mandrill 8パズル)
 
 [[png:results/mandrill-plan]]
 
 #+begin_xlarge
 #+begin_alignright
- → *Optimal Solution*
+ → *最適解*
 #+end_alignright
 #+end_xlarge
 
-** Results with photographic, unseparated tiles (Spider 8-puzzle)
+** 写真ベースの8パズル: タイルが明確に分離されていない (Spider 8パズル)
 
 [[png:results/spider-plan-new]]
 
 #+begin_center
 #+begin_larger
-Notice that *latplan has no idea that this is an 8-puzzle*; Thus MNIST, Mandrill, Spider are entirely different domains (state encoding is also different)
+*Latplan は この問題が8パズルと呼ばれていることすら知らないことに注意*; MNIST, Mandrill, Spider は 機械にとっては全て異なるドメイン
 #+end_larger
 #+end_center
 
-** Tower of Hanoi (3 disks, 4 disks)
+** ハノイの塔 (3 disks, 4 disks)
 
-Completely different puzzle problems can be solved by the same system
+全く別種のパズルでも同じシステムで解くことが出来る
 
 [[png:results/hanoi3]]
 
@@ -1071,49 +1369,48 @@ Completely different puzzle problems can be solved by the same system
 
 #+begin_alignright
 #+begin_xlarge
- → *Optimal Solution* (7 steps,15 steps)
+ → *最適解* (7 steps,15 steps)
 #+end_xlarge
 #+end_alignright
 
-** Lights Out
+** ライツアウト
 
-Completely different puzzle problems can be solved by the same system
+全く別種のパズルでも同じシステムで解くことが出来る
 
 [[png:results/lightsout_new4x4]]
 
 #+begin_alignright
 #+begin_xlarge
- → *Optimal Solution*
+ → *最適解*
 #+end_xlarge
 #+end_alignright
 
 ** Twisted Lights Out
 
-Does not assume grid-like structures
+入力画像に歪みを加えて「格子状」という制限をなくす
 
 [[png:results/lightsout_twisted_new4x4]]
 
 #+begin_alignright
 #+begin_xlarge
- → *Optimal Solution*
+ → *最適解*
 #+end_xlarge
 #+end_alignright
 
-** Handling the Noisy Input
+** ノイズ耐性
 
-SAE implementation uses a denoising layer (Denoising AE)
-# Denoising AE を使っているため入力ノイズに左右されずにプランを求められる
+SAE の実装に Denoising AE を用いているため、ノイズに惑わされず命題にマップできる
 
 [[png:results/noise-new]]
 
 #+begin_larger
 #+begin_alignright
- → *Benefit from existing DL methods immediately*
+ → *既存のディープラーニング技術をすぐ活用できる*
 
- → *Improved speed, robustness, accuracy*
+ → *速い訓練、頑健性、精度*
 #+end_alignright
 #+end_larger
-* Why bother the off-the-shelf planner? Shouldn't the blind search do?
+* Why bother the off-the-shelf planner? Shouldn't the blind search do? :noexport:
 
 *Domain-independent lowerbounds works, /SURPRISINGLY!/*
 
@@ -1150,32 +1447,28 @@ SAE implementation uses a denoising layer (Denoising AE)
 #+end_row-fluid
 #+end_container-fluid
 
-* Why Gumbel-Softmax is necessary?
+* Why Gumbel-Softmax is necessary?                                 :noexport:
 
 + Alternative 1: Use a normal NN and *round* the encoder output?
   + ✘ The *decoder* is not trained with 0/1 value
 + Alternative 2: Include the *round* operation in a NN?
   + ✘ Rounding is *non-differentiable* / *Backpropagation impossible*
 
-* State Autoencoder Conclusion
+* State Autoencoder 実験まとめ
 
-+ SAE can learn from small examples ::
++ SAE は小さな入力から学習できる ::
 
-     20k training images → learn to map 360k unseen images
+     訓練画像 20k枚 → 見たことのない 360k 枚の画像を正しく復元できる
 
-     (AMA_1 is trivial, though)
++ SAEの生成した命題変数は健全である ::
 
-+ SAE-based propositions are sound ::
+     それを用いて記号的プランナが推論を行える
 
-     Planners can reason over the generated propositions
++ Latplan は核となる記号的プランナの理論的性質を受け継ぐ ::
 
-+ Latplan maintains the theoretical guarantee in the search algorithm ::
+  最適コスト解を保証するアルゴリズム (A*等) を使えば、画像による結果も最適解
 
-     Given the complete state space graph,
-
-  + Optimising algorithm (A*) returns an optimal solution
-
-  + Completeness is guaranteed
+  完全性のあるアルゴリズムを使えば、解が存在する場合には必ず発見する
 
 * *** ☕ Break ☕ ***
 
@@ -1226,15 +1519,13 @@ break
 #+begin_container-fluid
 #+begin_row-fluid
 #+begin_span6
-*AMA_1 is impractical*, cannot obtain *entire data* in the real world
+*先程の実験ではアクションモデル獲得(AMA)をスキップ、外部からシミュレータを与えた*
 
-#+begin_center
-+ *AMA should* 
+SAEは *現実の状態を命題表現にするだけ* なので、 *世界がどう変化するかは知らない*
 
-  *learn / generalize*
-
-  *from small examples*
-#+end_center
+# #+begin_center
+# + *AMA は、少数の状態遷移の例から世界のシミュレータを作る*
+# #+end_center
 #+end_span6
 #+begin_span6
  [[png:overview/ama1]]
@@ -1244,29 +1535,29 @@ break
 
 #+begin_larger
 #+begin_alignright
-+ → *AMA_2*, a novel neural architecture
++ → 新たなニューラルネット *AMA_2* でAMAを実行
 #+end_alignright
 #+end_larger
 
-* The Task of AMA_2 : The */Real/* AMA method
+* AMA_2 : */本物の/* AMA method
 
-*Input:* Propositional transitions $\{ (s,t) \ldots \}$
+*入力:* 状態遷移 $\{ (s,t) \ldots \}$
 
 #+begin_alignright
-($Encod$'ed from Training Input)
+(SAEで命題論理表現に変換済み)
 #+end_alignright
 
-+ *Action Symbol Grounding*
++ *アクションシンボル・グラウンディング*
   
   #+begin_src lisp
   (:action slide-up-tile7-at-x0-y1 ...
   #+end_src
-+ *Action Preconditon Learning*
++ *前提条件の学習*
   
   #+begin_src lisp
    :precondition (and (empty x0 y0) ...)
   #+end_src
-+ *Action Effect Learning*
++ *効果の学習*
   
   #+begin_src lisp
    :effects      (and (empty x0 y1) (not ...)))
@@ -1340,57 +1631,60 @@ initial state
 + AMA_2 perform all three processes.
 #+end_alignright
 
-** Why */action symbols/* are necessary?
+** なぜ */アクションシンボル/* が必要なのか?
 
- Planners typically perform a *forward search* *(Dijkstra, $A^＊$ )*
+ 前提条件と効果の学習の必要性は自明、しかしなぜアクションシンボル?
 
- Without Action Symbols, *successor generation* becomes challenging
+ プランナは グラフ上の *前方探索* *(Dijkstra, $A^＊$ )* で問題を解くのが主流
 
- + SAE with $|z|=36 \text{bit}$
+ アクションシンボルなしでは、 *後者状態の生成* が難しくなる
 
-   → Generate *$2^{36}$ potential successors*, then filter the invalid
+ + $|z|=36 \text{bit}$ のSAEの場合:
 
- + */With action symbols/, (e.g. up, down, left, right)*
+   → 可能性のある後者状態は *$2^{36}$* 個あり、これを二値分類機などでふるいわけ
 
- + → We can *enumerate the candidates in /constant time/*.
+ + */アクションシンボルがあれば/ (例: 上下左右)*
 
-** The challenge
+ + → 考えるべき後者状態の候補は */定数時間/ で列挙できる* (例: 4つ).
 
-*Training Input lacks Action Symbols, just pairs of images*
+** 課題: 条件/効果の学習が自明でない
+
+*Training 入力 には、その遷移が何のアクションかを表すラベルがついていない*
+
+ただの画像ペア
 
 [[png:ama/action-symbol]]
 
-+ → Doesn't know *which transitions are of the same type*
++ → *どの状態遷移が「同じタイプの遷移」=「同じアクション」なのかを知らない*
 
-** Precondition/Effect learning is not trivial
+** 課題: 条件/効果の学習が自明でない
 
 #+begin_xlarge
-Case 1: Linear Space
+Case 1: 線形な探索空間
 #+end_xlarge
 
-+ *We do not need an action label*; it is linear anyways
-+ Then, AMA ≡ *prediction task* ($\approx$ scene prediction in video)
-  + We can train a neural network $a(s) = t\;$ by minimizing $|t-a(s)|$
++ *線形な空間ではアクションラベルは必要ない*; どうせ一直線、分岐なし
++ この場合 AMA ≡ *予測タスク* ($\approx$ ビデオの次フレームの予測)
+  + 状態遷移関数 $a(s) = t\;$ を近似するニューラルネットを、誤差 $|t-a(s)|$ を最小化して訓練すればいい。
+  + 現状のディープラーニング界のAMAは全てこれ
 
 [[png:ama/linear]]
 
-** Precondition/Effect learning is not trivial
+** 課題: 条件/効果の学習が自明でない
 
 #+begin_xlarge
-Case 2: Graphs
+Case 2: 実際は */グラフ/*
 #+end_xlarge
 
 #+begin_container-fluid
 #+begin_row-fluid
 #+begin_span7
 #+begin_center
-+ *Multiple action labels*
-+ */Varying/ number of successors*
++ *複数のアクションシンボル*
++ *ノードによって /子供の数が異なる/*
 
-  */for each state/*
-
-+ *Cannot train $a(s) = t\;$ for each $a$*
-  because *we don't know which (s,t) belongs to which $a$.*
++ *アクション $a$ ごとに $a(s) = t\;$ を訓練することはできない* 、
+  なぜなら *与えられた (s,t) がどの $a$ に属するのか未知.*
 #+end_center
 
 #+end_span7
@@ -1402,7 +1696,7 @@ Case 2: Graphs
 
 #+begin_alignright
 #+begin_larger
-+ *Correct Question*: *What* is the right function to learn?
++ *ここで問われるべき正しい質問*: AMAのために *学習するべき関数は何なのか?*
 #+end_larger
 #+end_alignright
 
@@ -1449,24 +1743,22 @@ break
 
 * Action AutoEncoder
 
-*What* is the right function to learn?
+ AMAのために *学習するべき関数は何なのか?*
 
 #+begin_center
 #+begin_container-fluid
 #+begin_row-fluid
 #+begin_span6
-+ $a(s) = t$ ?
-+ $a$ is actually a variable!
++ $a(s) = t$ ? ダメ!
++ $a$ は実際には *変数である*
 #+end_span6
 #+begin_span6
 + $apply(a,s) = t$
-+ Transition is a mapping $a \rightarrow t$
++ 状態遷移とは、写像 $a \rightarrow t$ を
 
-  *conditioned by $s$*
+  *$s$ で条件付けたもの* である
   
-  (previous state)
-
-+ *The right function to learn!*
++ *学習するべき関数はこれだ!*
 #+end_span6
 #+end_row-fluid
 #+end_container-fluid
@@ -1509,13 +1801,15 @@ break
 #+end_xlarge
 #+end_center
 
-* AAE does not address preconditions
+* AAE はアクションシンボルと効果だけ
+
+前提条件は学習しない
 
  [[png:ama/overview1-1]]
 
-* Action Discriminator is a Binary Classifer
+* Action Discriminator は 二値分類機
 
-*Binary classifier* telling which transitions are valid
+*二値分類機*, どの遷移が正しいか答える
 
 #+begin_container-fluid
 #+begin_row-fluid
@@ -1523,20 +1817,22 @@ break
 [[png:aae/ad]]
 #+end_span6
 #+begin_span6
-+ Trained by a *positive* and *negative* dataset
++ *正例* と *負例* から訓練
 
 #+begin_center
-+ We have *data for valid transitions (observed data).*
-+ *Where are the negative (/invalid/) datasets?*
++ *正例: 正しい状態遷移 (観察されたデータ) は手元にある.*
++ *負例 ( /許されない遷移/ ) のデータはどこにある...?*
 #+end_center
 #+end_span6
 #+end_row-fluid
 #+end_container-fluid
 
-** Invalid transitions
+** 許されない遷移
 
-+ */Invalid transitions/*: *All transitions that are not valid.*
-  + We lack the definition; *Cannot be generated.*
++ */許されない遷移/*: *許される遷移ではない全ての遷移.*
+  + そもそも「許される遷移」を知りたいので未知、従って *機械的生成は不可能.*
+
+    生成が不可能ならデータを集めれば良い?
 
 #+begin_container-fluid
 #+begin_row-fluid
@@ -1552,30 +1848,32 @@ break
 #+end_row-fluid
 #+end_container-fluid
 
-+ *Teleportation violates the laws of physics*. (at least in a macro scale)
-  + *Invalid transitions /never occur/, thus /never be observed/.*
++ *瞬間移動は物理法則に反する*. (少なくとも巨視的には)
+  + 自律行動AIにとって
+
+    *許されない遷移は /起こり得ない/, 従って /観察され得ない/.*
 
 #+begin_alignright
 #+begin_larger
-+ We lack *invalid transitions!*
++ 許されない遷移 のデータは *生成も観察も出来ない!*
 #+end_larger
 #+end_alignright
 
 ** PU-Learning framework (Elkan & Noto, KDD 08')
 
-Learning *Positive & negative classifier* from *positive & /mixed/ datasets*.
+*正例(positive) & 未分類例(unlabelled)から 正例/負例 識別機を学習できる!*
 
-+ Positive: Training Input. *Observed data are valid, guaranteed*
-+ Mixed: *Successor candidates generated by the AAE*
-  + Some are valid, some are invalid
++ 正例: Training 入力. *観察されたデータは全て正しい、保証済み*
++ 未分類例: *AAE が生成する全ての子ノード候補*
+  + どれかは正例、どれかは負例
 
 #+begin_alignright
-+ Now we can train the AD!
++ PU学習で AD を訓練可能!
 #+end_alignright
 
-** Successor Function
+** 後者関数
 
-AAE *enumerates* the canditates; AD/SD *filters* the invalid.
+AAE で *子ノード候補を列挙*; AD/SDで *負例をフィルタリング*.
 
 \begin{align*}
   Succ(s) &= \{t = apply(a,s) \; | \; a \in \{0\ldots 127\},\\
@@ -1587,7 +1885,10 @@ AAE *enumerates* the canditates; AD/SD *filters* the invalid.
 # & \qquad \land Encode(Decode(s)) \equiv s \\
 # & \qquad \land Apply(Action(t,s),s) \equiv t \}
 
-* Planning using AMA_2
+後者状態を生成する関数が手に入ったため、
+古典的な記号的前方探索アルゴリズム (A*, Dijkstra etc.) が使用可能
+
+* Planning using AMA_2                                             :noexport:
 
 Using a symbolic forward-search planner
 
@@ -1597,14 +1898,13 @@ Using a symbolic forward-search planner
 
 * AMA_2 Experiments 1
 
-Is it feasibile to do planning with AAE and AD?
+AAE と AD を使ってプランニングを行うことは可能?
 
-+ *100 instances* for each domain
-  + self-avoiding random walks from the goal state
-  + (benchmark A) 7-step
-  + (benchmark B) 14-step
++ それぞれのドメインごとに *100問* 問題を生成
+  + 初期状態はゴールから 自己回避ランダムウォークで生成
+  + (benchmark A) 7歩
+  + (benchmark B) 14歩
 + 180 sec. time limit
-+ Domain-specific plan validators.
 
 # The failures are due to timeouts
 # (the successor function requires many calls to the feedforward neural nets,
@@ -1674,36 +1974,32 @@ Measure the type-1 / type-2 error in %
 #+end_row-fluid
 #+end_container-fluid
 
-* AMA_2 Experiments 2
+* AMA_2 Experiments 2                                              :noexport:
 
 #+begin_container-fluid
 #+begin_row-fluid
 #+begin_span6
-How accurate are Action Discriminators?
+Action Discriminators の精度は?
 
 Measure the type-1 / type-2 error in %
 
-|          | type1 | type2 |
-|----------+-------+-------|
-| MNIST    |  1.55 |  6.15 |
-| Mandrill |  1.10 |  2.93 |
-| Spider   |  1.22 |  4.97 |
-| L. Out   |  0.03 |  1.64 |
-| Twisted  |  0.02 |  1.82 |
-| Hanoi    |  0.25 |  3.79 |
+|   |          | type1 | type2 |
+|---+----------+-------+-------|
+|   | MNIST    |  1.55 |  6.15 |
+|   | Mandrill |  1.10 |  2.93 |
+|   | Spider   |  1.22 |  4.97 |
+|   | L. Out   |  0.03 |  1.64 |
+|   | Twisted  |  0.02 |  1.82 |
+| / | Hanoi    |  0.25 |  3.79 |
 
 #+end_span6
 #+begin_span6
 #+begin_smaller
-+ (AD type-1) :: Generate all valid transitions and count the number of misclassification.
-+ (AD type-2) :: For 1000 randomly selected valid states, generate all successors,
-                 prune by SD,
-                 remove the valid transitions (w/ validator), then count the transitions misclassified as valid.
-# + (2/SD, 2/V) :: Same as Type-2, but ignore the transitions whose successors are
-#                  invalid according to SD or the validator.
++ (AD type-1) :: 全ての正しい状態遷移を生成し、ADが負例とした率
++ (AD type-2) :: ランダムに状態遷移を生成し、正しいものを取り除き、ADが正例とした率
 #+end_smaller
 #+begin_larger
-+ *Reasonably accurate.*
++ *あるていど正確.*
 #+end_larger
 #+end_span6
 #+end_row-fluid
@@ -1715,64 +2011,67 @@ Measure the type-1 / type-2 error in %
 # #+end_alignright
 # #+end_larger
 
-* Conclusion
+* まとめ
 
 + *Latplan Architecture* 
 
-  　　Models / solves the real-world problem as a *symbolic search*
-  # + Input : Unlabelled pairs of images, initial image, goal image
+  　　画像で示された現実世界の問題を *自力で記号モデルに変換し* 、記号的探索によって解く
+  # + 入力 : Unlabelled pairs of images, initial image, goal image
   # + Output : Visualized plans to achieve the goal
-+ *State AutoEncoder(SAE)* : */real-world states/ ↔ /propositional states/*
-+ *Action AutoEncoder(AAE)* : */transitions/ ↔ /action labels/, /effects/*
-+ *Action Discriminator(AD)* : */transition/ → /bool/* with *PU-Learning*
++ *State AutoEncoder(SAE)* : */現在状態の生データ/ ↔ /命題表現/*
++ *Action AutoEncoder(AAE)* : */状態遷移/ ↔ /アクションシンボル/, /効果/*
++ *Action Discriminator(AD)* : */状態遷移/ → /真偽値/* , *PU学習で訓練*
 
 #+begin_center
-+ *Two of the major grounding problems were solved!*
-  | Types of symbols      |                              |
-  |-----------------------+------------------------------|
-  | Propositional symbols | *Solved!*                    |
-  | Action symbols        | *Solved!*                    |
-  | Object symbols        | R-CNN (Computer Vision) etc? |
-  | Predicate symbols     | ???                          |
++ *古典プランニングで必要なシンボルグラウンディングのうち、２つを解決した!*
+  | シンボルの種類       |                              |
+  |----------------------+------------------------------|
+  | 命題変数シンボル     | *Solved!*                    |
+  | アクションシンボル   | *Solved!*                    |
+  | オブジェクトシンボル | R-CNN (Computer Vision) etc? |
+  | 述語シンボル         | SCAN???                      |
+
+  速度や精度が今後の課題
 #+end_center
 
-** Future Work (Input format)
+** Future Work (問題ドメイン)
 
-LatPlan is an *architecture* : Any system with SAE is an implementation
+LatPlan は あくまで *アーキテクチャ*
 
-*Different SAE → reason about different types of raw data*
+*SAE の実装を変えれば(原理的には)画像以外の任意の入力データに対応可能*
 
-+ Autoencoders for *text*, *audio* [Li 2015, Deng 2010]
-+ Example:
-  + Transition rule "*This is an apple, this is a pen → oh, ApplePen!*"
-    
-+ */Latplan/* brings AI to a new level e.g.
++ テキスト用のAE [Li et.al. 2015]、 音声用のAE [Deng, Li, et al. 2010]
++ 改造してSAEにすれば・・・
+  + *Here's an Apple, Here's a pen → oh, ApplePen!*
++ SAEを学習してプランナで解く
+
+  → *数千ステップの /論理的な/ 言語レベル推論 (反射ではなく) を可能に*
   
-  *1000 steps of natural language reasoning with /logic/, not by reflex*
-  
-  + Fundamentally impossible for short-sighted / greedy agents
+  + これは、本質的に近視眼的/貪欲なエージェント(*強化学習など*)には不可能
 
-#+begin_note
+#+BEGIN_NOTE
  "A hierarchical neural autoencoder for paragraphs and documents." (2015)
 
  "Binary coding of speech spectrograms using a deep auto-encoder." (2010)
-#+end_note
+#+END_NOTE
 
-** Future Work (Extended planning formalism)
+# ** Future Work (Extended planning formalism)
+# 
+# + Latplan assumes nothing about the environment machinery (grids, movable tiles...)
+# + Latplan assumes *fully-observable*, *deterministic* domains
+# + Next step: *Extending Latplan to MDP, POMDP*
+#   + Gumbel-Softmax layer → just a Softmax layer? (probability)
+#   + $AO^*$, $LAO^*$ algorithms for *optimal planning under uncertainty*
+#     
+# ** Other Future Works
+# 
+# Extracting rules from AAE/AD (discussed later)
+# 
+# Extracting much higher-order rule (predicates, HTN)
 
-+ Latplan assumes nothing about the environment machinery (grids, movable tiles...)
-+ Latplan assumes *fully-observable*, *deterministic* domains
-+ Next step: *Extending Latplan to MDP, POMDP*
-  + Gumbel-Softmax layer → just a Softmax layer? (probability)
-  + $AO^*$, $LAO^*$ algorithms for *optimal planning under uncertainty*
-    
-** Other Future Works
+* これが *neural-symbolic* AI の幕開け.
 
-Extracting rules from AAE/AD (discussed later)
 
-Extracting much higher-order rule (predicates, HTN)
-
-* This is the start of *neural-symbolic* AI.
 
 [[png:latplanlogo]]
 
@@ -1851,7 +2150,7 @@ SCAN system (deepmind)
  *Machine Learning, Neural Networks* 
  
  for *Recognition, Reflex*
- + *Subsymbolic Input* (continuous)
+ + *Subsymbolic 入力* (continuous)
    
    Images, Audio, unstructured text: 
  + *Soft Intelligence*:
@@ -1876,7 +2175,7 @@ SCAN system (deepmind)
  *Deliberation, Search*
 
  for *Planning, Game, Theorem Proving*
- + *Symbolic Input/Output*
+ + *Symbolic 入力/Output*
    
    Logic, objects, induction rules
  + *Hard Intelligence by Logic:*
