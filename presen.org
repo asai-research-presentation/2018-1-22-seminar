@@ -17,8 +17,6 @@ Masataro Asai
 
 The University of Tokyo
 #+end_larger
-
-20+ min
 #+end_center
 
 #+begin_note
@@ -1133,7 +1131,7 @@ Plus misc techniques e.g. *Batchnorm*, *Dropout*
 目標関数: Identity $x=f(x)$
 + $x\;$ を *隠れ表現* $z$ にエンコード
 + $z\;$ を 入力 $x$ にデコード
-+ $z\;$ は小さな次元数: 次元圧縮
+# + $z\;$ は小さな次元数: 次元圧縮
 + 訓練: $|x - f(x)|\;$ を最小化
   (*自己符号化ロス*)
 #+end_span7
