@@ -2069,9 +2069,7 @@ LatPlan は あくまで *アーキテクチャ*
 # 
 # Extracting much higher-order rule (predicates, HTN)
 
-* これが *neural-symbolic* AI の幕開け.
-
-
+* *neural-symbolic* AI !
 
 [[png:latplanlogo]]
 
